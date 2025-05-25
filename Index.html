@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Data Management System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+     <link rel="stylesheet" href="Css/Style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <button class="mobile-menu-btn no-print">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <img src="image/Excel Data Manager .png" alt="Logo">
+                <span>Excel Data Manager </span>
+            </div>
+            <div class="header-actions">
+                <div class="file-info no-print">
+                    <i class="fas fa-file-excel"></i>
+                    <span id="fileInfo">Current File: Untitled.xlsx | Records: 0 | Last Modified: Not saved yet</span>
+                </div>
+                <div class="user-profile no-print">
+                    <span> User</span>
+                    <div class="user-avatar">EDM</div>
+                    <div class="user-menu">
+                        <a href="#" class="user-menu-item">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                        <a href="#" class="user-menu-item">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <a href="#" class="user-menu-item">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar no-print">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-tab="dashboard">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="data-entry">
+                            <i class="fas fa-edit"></i> Data Entry
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="data-view">
+                            <i class="fas fa-table"></i> Data View
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="analytics">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="reports">
+                            <i class="fas fa-file-pdf"></i> Reports
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="file-history">
+                            <i class="fas fa-history"></i> File History
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-tab="settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="content-area">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-content active">
+                    <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h2>
+                    
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Total Records</div>
+                                    <div class="card-value" id="totalRecordsCard">0</div>
+                                </div>
+                                <div class="card-icon icon-primary">
+                                    <i class="fas fa-database"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Columns</div>
+                                    <div class="card-value" id="totalColumnsCard">0</div>
+                                </div>
+                                <div class="card-icon icon-success">
+                                    <i class="fas fa-columns"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Last Modified</div>
+                                    <div class="card-value" id="lastModifiedCard">Never</div>
+                                </div>
+                                <div class="card-icon icon-warning">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-title">Current File</div>
+                                    <div class="card-value" id="currentFileCard">Untitled.xlsx</div>
+                                </div>
+                                <div class="card-icon icon-danger">
+                                    <i class="fas fa-file-excel"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <h3 class="section-title"><i class="fas fa-chart-pie"></i> Data Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="dataChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Entry Tab -->
+                <div id="data-entry" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-edit"></i> Data Entry</h2>
+                    
+                    <div class="section">
+                        <div class="form-group">
+                            <label for="entryFileName">File Name (without extension)</label>
+                            <input type="text" id="entryFileName" placeholder="Enter file name" value="Untitled">
+                        </div>
+                        
+                        <form id="dataForm">
+                            <div id="formFields"></div>
+                            <input type="hidden" id="editIndex" value="-1">
+                            <div class="button-group">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Data
+                                </button>
+                                <button type="button" id="clearForm" class="btn btn-secondary">
+                                    <i class="fas fa-eraser"></i> Clear Form
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="section no-print">
+                        <h3 class="section-title"><i class="fas fa-columns"></i> Column Management</h3>
+                        <div class="form-group">
+                            <label for="newColumnName">New Column Name</label>
+                            <input type="text" id="newColumnName" placeholder="Enter column name">
+                        </div>
+                        <div class="button-group">
+                            <button id="addColumnBtn" class="btn btn-success">
+                                <i class="fas fa-plus"></i> Add Column
+                            </button>
+                            <button id="removeColumnBtn" class="btn btn-danger">
+                                <i class="fas fa-minus"></i> Remove Last Column
+                            </button>
+                            <button id="resetColumnsBtn" class="btn btn-warning">
+                                <i class="fas fa-redo"></i> Reset Columns
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data View Tab -->
+                <div id="data-view" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-table"></i> Data View</h2>
+                    
+                    <div class="section">
+                        <div class="button-group no-print">
+                            <button id="downloadExcel" class="btn btn-success">
+                                <i class="fas fa-file-excel"></i> Download Excel
+                            </button>
+                            <button id="printData" class="btn btn-warning">
+                                <i class="fas fa-print"></i> Print Data
+                            </button>
+                            <button id="loadSample" class="btn btn-secondary">
+                                <i class="fas fa-database"></i> Load Sample Data
+                            </button>
+                            <button id="clearAllData" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Clear All Data
+                            </button>
+                        </div>
+                        
+                        <div id="tableContainer">
+                            <div id="noDataMessage" class="no-data" style="display: none;">
+                                <i class="fas fa-database"></i>
+                                <p>No data available. Please add some records.</p>
+                            </div>
+                            <table id="dataTable" style="display: none;">
+                                <thead>
+                                    <tr id="tableHeader"></tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Tab -->
+                <div id="analytics" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-chart-bar"></i> Data Analytics</h2>
+                    
+                    <div class="section">
+                        <div class="form-group no-print">
+                            <label for="analyticsColumn">Select Column for Analysis</label>
+                            <select id="analyticsColumn" class="form-control">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="columnChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="chart-container">
+                            <canvas id="valueDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Tab -->
+                <div id="reports" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-file-pdf"></i> Generate Reports</h2>
+                    
+                    <div class="section">
+                        <div class="form-group">
+                            <label for="reportTitle">Report Title</label>
+                            <input type="text" id="reportTitle" placeholder="Enter report title" value="Data Report">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportDescription">Description</label>
+                            <textarea id="reportDescription" rows="3" placeholder="Enter report description">This report contains the current dataset from Excel Data Manager Pro.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportColumns">Select Columns to Include</label>
+                            <div id="reportColumnsCheckboxes" style="margin-top: 10px;">
+                                <!-- Checkboxes will be populated dynamically -->
+                            </div>
+                        </div>
+                        
+                        <div class="button-group no-print">
+                            <button id="generatePdf" class="btn btn-danger">
+                                <i class="fas fa-file-pdf"></i> Generate PDF Report
+                            </button>
+                            <button id="previewReport" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Preview Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- File History Tab -->
+                <div id="file-history" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-history"></i> File History</h2>
+                    
+                    <div class="section">
+                        <div class="button-group no-print">
+                            <button id="refreshHistory" class="btn btn-primary">
+                                <i class="fas fa-sync-alt"></i> Refresh History
+                            </button>
+                            <button id="clearHistory" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Clear History
+                            </button>
+                        </div>
+                        
+                        <div id="historyContainer">
+                            <div id="noHistoryMessage" class="no-data" style="display: none;">
+                                <i class="fas fa-history"></i>
+                                <p>No file history available. Your saved files will appear here.</p>
+                            </div>
+                            <div id="fileHistory" class="file-history" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Tab -->
+                <div id="settings" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-cog"></i> Application Settings</h2>
+                    
+                    <div class="section">
+                        <div class="form-group">
+                            <label for="appTheme">Color Theme</label>
+                            <select id="appTheme" class="form-control">
+                                <option value="default">Default Blue</option>
+                                <option value="dark">Dark Mode</option>
+                                <option value="green">Green</option>
+                                <option value="purple">Purple</option>
+                                <option value="red">Red</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="autoSave">Auto Save Interval (minutes)</label>
+                            <input type="number" id="autoSave" min="1" max="60" value="5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rowsPerPage">Rows Per Page in Data View</label>
+                            <input type="number" id="rowsPerPage" min="5" max="100" value="10">
+                        </div>
+                        
+                        <div class="button-group">
+                            <button id="saveSettings" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Settings
+                            </button>
+                            <button id="resetSettings" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i> Reset to Defaults
+                            </button>
+                            <button id="exportSettings" class="btn btn-success">
+                                <i class="fas fa-file-export"></i> Export Settings
+                            </button>
+                            <button id="importSettings" class="btn btn-warning">
+                                <i class="fas fa-file-import"></i> Import Settings
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Mobile Dots Menu (for small screens) -->
+        <div class="mobile-dots-menu no-print">
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+        <div class="mobile-dots-menu-content no-print">
+            <a href="#" class="mobile-dots-menu-item" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="data-entry">
+                <i class="fas fa-edit"></i> Data Entry
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="data-view">
+                <i class="fas fa-table"></i> Data View
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="analytics">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="reports">
+                <i class="fas fa-file-pdf"></i> Reports
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="file-history">
+                <i class="fas fa-history"></i> History
+            </a>
+            <a href="#" class="mobile-dots-menu-item" data-tab="settings">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+        </div>
+
+        <footer class="footer no-print">
+            <p>Designed by Shubham Kumar Verma </p>
+        </footer>
+    </div>
+
+    <!-- File Save Modal -->
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Save File</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="saveFileName">File Name</label>
+                    <input type="text" id="saveFileName" placeholder="Enter file name">
+                </div>
+                <div class="form-group">
+                    <label for="saveFileFormat">File Format</label>
+                    <select id="saveFileFormat" class="form-control">
+                        <option value="xlsx">Excel Workbook (.xlsx)</option>
+                        <option value="csv">CSV (.csv)</option>
+                        <option value="json">JSON (.json)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelSave" class="btn btn-secondary">Cancel</button>
+                <button id="confirmSave" class="btn btn-primary">Save File</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Settings Modal -->
+    <div id="importSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Import Settings</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="settingsFile">Select Settings File</label>
+                    <input type="file" id="settingsFile" class="form-control" accept=".json">
+                </div>
+                <div class="spinner" id="importSpinner"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancelImport" class="btn btn-secondary">Cancel</button>
+                <button id="confirmImport" class="btn btn-primary">Import Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operation completed successfully</span>
+    </div>
+ <script src="js/script.js"></script>
+</body>
+</html>
